@@ -35,4 +35,4 @@ else:
   white = (255, 255, 255)
 
   while True:
-    sense.show_message('Byen "' + city + '" findes ikke', text_colour=white, back_colour=red, scroll_speed=0.05)
+    sense.show_message('Byen "' + city + '" findes ikke!', text_colour=white, back_colour=red, scroll_speed=0.05)
