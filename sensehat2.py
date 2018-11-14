@@ -25,11 +25,11 @@ if len(locationdata) > 1:
   temptext = weatherdata[0]['WeatherText']
   temp = weatherdata[0]['Temperature']['Metric']['Value']
 
-  black = (0, 0, 0)
+  blue = (0, 0, 155)
   white = (255, 255, 255)
 
   while True:
-    sense.show_message("Temperatur i " + locationname + ": " + str(temp) + "C" + " ... " + temptext, text_colour=white, back_colour=black, scroll_speed=0.05)
+    sense.show_message("Temperatur i " + locationname + ": " + str(temp) + "C" + " ... " + temptext, text_colour=white, back_colour=blue, scroll_speed=0.05)
 else:
   red = (155, 0, 0)
   white = (255, 255, 255)
