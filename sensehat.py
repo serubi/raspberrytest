@@ -1,14 +1,36 @@
 from sense_hat import SenseHat
-from random import randint
-from time import sleep
-
 sense = SenseHat()
+sense.clear()
 
-while True:
-    x = randint(0, 7)
-    y = randint(0, 7)
-    r = randint(0, 255)
-    g = randint(0, 255)
-    b = randint(0, 255)
-    sense.set_pixel(x, y, r, g, b)
-    sleep(0.01)
+blue = (0, 0, 255)
+red = (255, 0, 0)
+white = (255, 255, 255)
+
+for y in range(0, 8):
+  for x in range(0, 4):
+    if x % 2 == 0:
+      sense.set_pixel(x, y, white)
+    else:
+      sense.set_pixel(x, y, red)
+
+for y in range(0, 4):
+  for x in range(4, 8):
+    if x % 2 == 0:
+      if y % 2 == 0:
+        sense.set_pixel(x, y, white)
+        sense.set_pixel(x, y, white)
+        sense.set_pixel(x+1, y+1, white)
+        sense.set_pixel(x+1, y+1, white)
+      else:
+        sense.set_pixel(x, y, blue)
+        sense.set_pixel(x, y, blue)
+        sense.set_pixel(x+1, y-1, blue)
+        sense.set_pixel(x+1, y-1, blue)
+
+for y in range(4, 8):
+  for x in range(4, 8):
+    if x % 2 == 0:
+      sense.set_pixel(x, y, white)
+    else:
+      sense.set_pixel(x, y, red)
+      
