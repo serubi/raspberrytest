@@ -7,7 +7,7 @@ sense = SenseHat()
 response = requests.get('https://reqres.in/api/users/2')
 data = response.json()
 
-#print(data[""])
+print(data["first_name"])
 
 black = (0, 0, 0)
 blue = (0, 0, 255)
