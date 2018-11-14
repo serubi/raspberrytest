@@ -1,177 +1,275 @@
-#!/usr/bin/python3
-import time, math, random
-import sense_hat
+import sense_hat, random, time
 
 """
 
-  Astro Bug!
+  Rock Paper Scissors
   
-  A bug game.  Eat the food! Avoid the enemies!
-
-  Modify the starting state in the `state` dict.
-
-  Note: Requires sense_hat version 2.2.0 or later.
+  Play Rock Paper Scissors with your Raspberry Pi.  Select rock, paper or
+  scissors with the joystick. The Pi picks randomly.  
+  
+  Keeps track of your score- try best out of 5!
+  
+  Note: Requires sense_hat version 2.2.0 or later
   
 """
-
-starting_enemies = [ [4,6], [0,4] ]
-
-state = { "bug_x" : 4,
-          "bug_y" : 4,
-          "bug_rgb" : (250,250,250),
-          "food_x" : 2,
-          "food_y" : 7,
-          "food_rgb" : (0,255,50),
-          "level" : 1,
-          "enemies" : starting_enemies,
-          "enemy_rgb" : (255,50,0) }
-
-start_over_state = dict(state)
 
 sense = sense_hat.SenseHat()
-sense.low_light = True
 
-def setscreen():
-  """Takes x and y vales and alters screen state. Does not 
-  modify state."""
-  bug_x = state["bug_x"]
-  bug_y = state["bug_y"]
-  bug_rgb = state["bug_rgb"]
-  food_x = state["food_x"]
-  food_y = state["food_y"]
-  food_rgb = state["food_rgb"]
-  enemies = state["enemies"]
-  enemy_rgb = state["enemy_rgb"]
+game_state = { 
+          "comp_pick" : None,
+          "user_pick" : None,
+          "picks" : ("rock", "paper", "scissors"),
+          "choice_index" : 0,
+          "comp_score" : 0,
+          "user_score" : 0
+        }
 
-  if sense.low_light:
-    zero = 8
-  else:
-    zero = 48
-  brightness = 255 -zero 
-  sense.clear((50,100,150))
-  sense.set_pixel(food_x, food_y, food_rgb) 
-  sense.set_pixel(bug_x, bug_y, bug_rgb)
-  for e in enemies:
-    sense.set_pixel(e[0], e[1], enemy_rgb)
+start_over_state = game_state.copy()
 
-def distance(x1, y1, x2, y2):
-  """returns distance of two points"""
-  return math.hypot(x2 - x1, y2 - y1)
+Y = (255, 255, 0)
+G = (0, 255, 0)
+B = (0, 0, 255)
+X = (0, 0, 0)
 
-def clip(pixels, nmin = 0, nmax = 255):
-  """Ensures rgb values are between 0 and 255"""
-  return tuple(max(min(nmax, n), nmin) for n in pixels)
+####
+# Game Images
+####
 
-def check_pos():
-  """Checks for eating food and hitting enemies. Alters state but
-  does not redraw screen.  Call setscreen() after this."""
-  global state
-  bug_x = state["bug_x"]
-  bug_y = state["bug_y"]
-  food_x = state["food_x"]
-  food_y = state["food_y"]
-  level = state["level"]
-  enemies = state["enemies"]
+big_rock = [
+    X, X, X, X, X, X, X, X,
+    X, X, X, X, X, X, X, X,
+    X, X, Y, Y, Y, X, X, X,
+    X, Y, Y, Y, Y, Y, X, X,
+    X, Y, Y, Y, X, Y, Y, X,
+    X, Y, Y, Y, Y, Y, Y, X,
+    X, X, Y, Y, Y, Y, X, X,
+    X, X, X, X, X, X, X, X
+]
 
-  weaker = int(10 * (level/2))
-  stronger = 10
-  radius = 2.5
-  fdist = distance(bug_x, bug_y, food_x, food_y)
 
-  for e in enemies:
-    edist = distance(bug_x, bug_y, e[0], e[1])
-    if edist == 0:
-      # Hit an enemy; game over & reset
-      sense.show_message("R.I.P. Bug, Level {0}".format(state["level"]))
-      state = dict(start_over_state)
-      return
+big_paper = [
+    X, X, X, X, X, X, X, X,
+    X, X, X, G, G, G, X, X,
+    X, X, G, X, G, G, X, X,
+    X, G, X, X, G, G, X, X,
+    X, G, G, G, G, G, X, X,
+    X, G, G, G, G, G, X, X,
+    X, G, G, G, G, G, X, X,
+    X, X, X, X, X, X, X, X
+]
 
-  if fdist > radius:
-    # Bug is far away; grow weaker
-    state["bug_rgb"] = clip([abs(i - weaker) for i in state["bug_rgb"]])
-  elif fdist == 0.0:
-    # Bug ate food and is healthy again
-    state["bug_rgb"] = (255,255,255)
-    state["level"] += 1
-    state["enemies"] += [[random.randint(0,7), random.randint(0,7)]]
-    sense.show_message(str(state["level"]))
-    time.sleep(1) 
-    # Set food to new location that's not under the bug
-    while True:
-      state["food_x"] = random.randint(0,7)
-      if state["food_x"] != state["bug_x"]:
-        break
-    while True:
-      state["food_y"] = random.randint(0,7)
-      if state["food_y"] != state["bug_y"]:
-        break
-  elif fdist < radius:
-    # Bug is close; grow a little stronger
-    state["bug_rgb"] = clip([abs(i + stronger) for i in state["bug_rgb"]])
 
-def rand_step(xy):
-  """Returns one iteration of a random walk of x,y coordinates"""
-  x, y = xy
+big_scissors = [
+    X, X, X, X, X, X, X, X,
+    X, B, X, X, X, X, B, X,
+    X, X, B, X, X, B, X, X,
+    X, X, X, B, B, X, X, X,
+    X, X, X, B, B, X, X, X,
+    X, B, B, X, X, B, B, X,
+    X, B, B, X, X, B, B, X,
+    X, X, X, X, X, X, X, X
+]
 
-  new_x = x + random.choice([-1,0,1])
-  new_y = y + random.choice([-1,0,1])
-  return [ 0 if new_x == 8 else 7 if new_x == -1 else new_x,\
-           0 if new_y == 8 else 7 if new_y == -1 else new_y]
 
-def move_enemies():
-  global state
-  enemies = state["enemies"]
-  reserved = [[state["bug_x"], state["bug_y"]],[state["food_x"], state["food_y"]]]
-  new_enemies = []
-  for e in enemies:
-    while True:
-      new_e = rand_step(e)
-      if new_e not in reserved:
-        break
-    new_enemies.append(new_e)
-  state["enemies"] = new_enemies
-  setscreen()
+user_rock = [
+    X, X, X, X, X, X, X, X,
+    X, X, X, X, X, Y, Y, X,
+    X, X, X, X, Y, Y, Y, Y,
+    X, X, X, X, Y, Y, Y, Y
+]
 
-def draw_bug(event):
-  """Takes a keypress and redraws the screen"""
-  global state
-  if event.action == sense_hat.ACTION_RELEASED:
-    # Ignore releases
-    return
-  elif event.direction == sense_hat.DIRECTION_UP:
-    state["bug_x"] = state["bug_x"]
-    state["bug_y"] = 7 if state["bug_y"] == 0 else state["bug_y"] - 1
-  elif event.direction == sense_hat.DIRECTION_DOWN:
-    state["bug_x"] = state["bug_x"]
-    state["bug_y"] = 0 if state["bug_y"] == 7 else state["bug_y"] + 1
-  elif event.direction == sense_hat.DIRECTION_RIGHT:
-    state["bug_x"] = 0 if state["bug_x"] == 7 else state["bug_x"] + 1
-    state["bug_y"] = state["bug_y"]
-  elif event.direction == sense_hat.DIRECTION_LEFT:
-    state["bug_x"] = 7 if state["bug_x"] == 0 else state["bug_x"] - 1
-    state["bug_y"] = state["bug_y"] 
+user_paper = [
+    X, X, X, X, X, X, G, G,
+    X, X, X, X, X, G, X, G,
+    X, X, X, X, X, G, G, G,
+    X, X, X, X, X, G, G, G
+]
 
-  # Check to see if anything should happen
-  setscreen()
-  check_pos()
-  setscreen()
+user_scissors = [
+    X, X, X, X, B, X, X, B,
+    X, X, X, X, X, B, B, X,
+    X, X, X, X, X, B, B, X, 
+    X, X, X, X, B, X, X, B
+]
 
-# Initial state
-setscreen()
-sense.set_pixel(state["bug_x"], state["bug_y"], state["bug_rgb"])
+comp_rock = [
+    X, X, X, X, X, X, X, X,
+    X, Y, Y, X, X, X, X, X,
+    Y, Y, Y, Y, X, X, X, X,
+    Y, Y, Y, Y, X, X, X, X
+]
 
-last_tick = round(time.time(),1) * 10
+comp_paper = [
+    X, G, G, X, X, X, X, X,
+    G, X, G, X, X, X, X, X,
+    G, G, G, X, X, X, X, X,
+    G, G, G, X, X, X, X, X
+]
+
+comp_scissors = [
+    B, X, X, B, X, X, X, X,
+    X, B, B, X, X, X, X, X,
+    B, B, B, B, X, X, X, X,
+    B, X, X, B, X, X, X, X
+]
+     
+small_nothing = [
+    X, X, X, X, X, X, X, X,
+    X, X, X, X, X, X, X, X,
+    X, X, X, X, X, X, X, X,
+    X, X, X, X, X, X, X, X
+]
+
+####
+# Game Functions
+####
+
+def get_user_pick(state):
+    """
+    Takes game state and returns string of user's pick.
+    """
+    picks = state["picks"]
+    return picks[state["choice_index"] % len(picks)]
+
+def show_picks(state):
+
+    user = get_user_pick(state)
+    comp = state["comp_pick"]
+    
+    # show user pick, then comp pick
+    if user == "rock":
+        user_screen =  user_rock
+    elif user == "paper":
+        user_screen = user_paper
+    elif user == "scissors":
+        user_screen = user_scissors
+    if comp == "rock":
+        comp_screen = comp_rock
+    elif comp == "paper":
+        comp_screen = comp_paper
+    elif comp == "scissors":
+        comp_screen = comp_scissors
+    
+    # Display user choice
+    screen1 = small_nothing + user_screen
+    sense.set_pixels(screen1)
+    
+    time.sleep(.5)
+    
+    # Display comp choice too
+    screen2 = comp_screen + user_screen
+    sense.set_pixels(screen2)
+    
+    time.sleep(1)
+    
+    # Make alternate screen based on result
+    if user_wins(game_state):
+        P = (0, 150, 0)
+    elif user_wins(game_state) == None:
+        P = (100, 100, 100)
+    else:
+        P = (150, 0, 0)
+    screen3 = [P if i == X else i for i in screen2]
+    
+    # Flash Screen
+    for i in range(15):
+        sense.set_pixels(screen2)
+        time.sleep(.02)
+        sense.set_pixels(screen3)
+        time.sleep(.02)
+    
+def display_score(state):
+    user_score = state["user_score"]
+    comp_score = state["comp_score"]
+    sense.show_message("You: {0} Pi: {1}".format(user_score, comp_score))
+    display(state)
+
+def user_wins(state):
+    """
+    Returns True if the user wins, False if user loses, and None if tie
+    """
+    comp = state["comp_pick"]
+    user = state["user_pick"]
+    
+    if comp == user:
+        return None
+    elif comp == "rock":
+        return user == "paper"
+    elif comp == "paper":
+
+        return user == "scissors"
+    elif comp == "scissors":
+        return user == "rock"
+    
+
+def score(state):
+    if user_wins(state) == True:
+        state["user_score"] += 1
+    elif user_wins(state) == False:
+        state["comp_score"] += 1
+    
+    # Show picks and display the score
+    show_picks(state)
+    display_score(state)
+    
+    # Reset
+    state["comp_pick"] = None
+    state["user_pick"] = None
+    state["choice_index"] = 0
+    
+    display(state)
+
+def display(state):
+    """
+    Displays the shape of the current choice index.    
+    """
+    user_pick = get_user_pick(state)
+
+    if user_pick == "rock":
+        sense.set_pixels(big_rock)
+    elif user_pick == "paper":
+        sense.set_pixels(big_paper)
+    elif user_pick == "scissors":
+        sense.set_pixels(big_scissors)
+
+####
+# Intro on Program Start
+####
+
+sense.clear()
+
+for image in [big_rock, big_paper, big_scissors]:
+    sense.set_pixels(image)
+    time.sleep(.5)
+    
+sense.show_message("<")
+sense.set_rotation(180)
+sense.show_message("<")
+sense.set_rotation(0)
+
+# Start at the rock
+sense.set_pixels(big_rock)
+
+####
+# Main Loop
+####
 
 while True:
-  # Enemies move faster in higher levels
-  timer = 20 - (state["level"] % 20)
-
-  # Every so often, move enemies
-  tick = round(time.time(),1) * 10
-  if (tick % timer == 0) and (tick > last_tick):
-    move_enemies()
-    last_tick = tick
-
-  # Poll joystick for events. When they happen, redraw screen. 
-  for event in sense.stick.get_events():
-    draw_bug(event)
+    events = sense.stick.get_events()
+    if events:
+      for event in events:
+        if event.action != 'pressed':
+            #this is a hold or keyup; move on
+            continue
+        if event.direction == 'left':
+            game_state["choice_index"] += 1
+            display(game_state)
+        elif event.direction == 'right':
+            game_state["choice_index"] -= 1
+            display(game_state)
+        elif event.direction == 'middle':
+            # Comp picks randomly
+            game_state["comp_pick"] = random.choice(game_state["picks"])
+            # User picks selected option
+            game_state["user_pick"] = get_user_pick(game_state)
+            score(game_state)
