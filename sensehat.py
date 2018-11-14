@@ -1,59 +1,36 @@
 #!/usr/bin/python
+import sys
 from sense_hat import SenseHat
-import os
-import time
-import pygame  # See http://www.pygame.org/docs
-from pygame.locals import *
 
+# To get good results with the magnetometer you must first calibrate it using
+# the program in RTIMULib/Linux/RTIMULibCal
+# The calibration program will produce the file RTIMULib.ini
+# Copy it into the same folder as your Python code
 
-print("Press Escape to quit")
-time.sleep(1)
-
-pygame.init()
-pygame.display.set_mode((640, 480))
+led_loop = [4, 5, 6, 7, 15, 23, 31, 39, 47, 55, 63, 62, 61, 60, 59, 58, 57, 56, 48, 40, 32, 24, 16, 8, 0, 1, 2, 3]
 
 sense = SenseHat()
-sense.clear()  # Blank the LED matrix
+sense.set_rotation(0)
+sense.clear()
 
-# 0, 0 = Top left
-# 7, 7 = Bottom right
-UP_PIXELS = [[3, 0], [4, 0]]
-DOWN_PIXELS = [[3, 7], [4, 7]]
-LEFT_PIXELS = [[0, 3], [0, 4]]
-RIGHT_PIXELS = [[7, 3], [7, 4]]
-CENTRE_PIXELS = [[3, 3], [4, 3], [3, 4], [4, 4]]
+prev_x = 0
+prev_y = 0
 
+led_degree_ratio = len(led_loop) / 360.0
 
-def set_pixels(pixels, col):
-    for p in pixels:
-        sense.set_pixel(p[0], p[1], col[0], col[1], col[2])
+while True:
+    dir = sense.get_compass()
+    dir_inverted = 360 - dir  # So LED appears to follow North
+    led_index = int(led_degree_ratio * dir_inverted)
+    offset = led_loop[led_index]
 
+    y = offset // 8  # row
+    x = offset % 8  # column
 
-def handle_event(event, colour):
-    if event.key == pygame.K_DOWN:
-        set_pixels(DOWN_PIXELS, colour)
-    elif event.key == pygame.K_UP:
-        set_pixels(UP_PIXELS, colour)
-    elif event.key == pygame.K_LEFT:
-        set_pixels(LEFT_PIXELS, colour)
-    elif event.key == pygame.K_RIGHT:
-        set_pixels(RIGHT_PIXELS, colour)
-    elif event.key == pygame.K_RETURN:
-        set_pixels(CENTRE_PIXELS, colour)
+    if x != prev_x or y != prev_y:
+        sense.set_pixel(prev_x, prev_y, 0, 0, 0)
 
+    sense.set_pixel(x, y, 0, 0, 255)
 
-running = True
-
-BLACK = [0, 0, 0]
-WHITE = [255, 255, 255]
-
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        if event.type == KEYDOWN:
-            if event.key == K_ESCAPE:
-                running = False
-            handle_event(event, WHITE)
-        if event.type == KEYUP:
-            handle_event(event, BLACK)
+    prev_x = x
+    prev_y = y
