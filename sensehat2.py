@@ -20,5 +20,5 @@ black = (0, 0, 0)
 white = (155, 155, 155)
 
 while True:
-  sense.show_message("Temperatur i " + locationname + ": " + temp + "C" + " ... " + temptext, text_colour=white, back_colour=black, scroll_speed=0.05)
+  sense.show_message("Temperatur i " + locationname + ": " + str(temp) + "C" + " ... " + temptext, text_colour=white, back_colour=black, scroll_speed=0.05)
 
