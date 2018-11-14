@@ -35,7 +35,7 @@ for y in range(4, 8):
     else:
       sense.set_pixel(x, y, red)
 
-while true:
+while True:
   time.sleep(1)
   sense.flip_v()
   time.sleep(1)
