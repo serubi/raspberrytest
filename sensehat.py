@@ -34,3 +34,5 @@ for y in range(4, 8):
     else:
       sense.set_pixel(x, y, red)
       
+time.sleep(5)
+sense.flip_h()
