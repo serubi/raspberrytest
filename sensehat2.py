@@ -29,7 +29,7 @@ if len(locationdata) > 1:
   white = (255, 255, 255)
 
   while True:
-    sense.show_message("Temperature in " + locationname + ": " + str(temp) + "C" + " ... " + temptext, text_colour=black, back_colour=white, scroll_speed=0.05)
+    sense.show_message("Temperature in " + locationname + ": " + str(temp) + "C" + " ... " + temptext, text_colour=white, back_colour=black, scroll_speed=0.05)
 else:
   red = (155, 0, 0)
   white = (255, 255, 255)
