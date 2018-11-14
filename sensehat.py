@@ -2,6 +2,7 @@ from sense_hat import SenseHat
 import time
 sense = SenseHat()
 sense.clear()
+sense.low_light = True
 
 def auto_rotate_display():
   # read sensors data to detect orientation
