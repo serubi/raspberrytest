@@ -16,7 +16,7 @@ print("Finder vejr for " + city)
 location = requests.get('http://dataservice.accuweather.com/locations/v1/cities/search?apikey=' + apikey + '&q=' + city)
 locationdata = location.json()
 
-if 'locationdata[0]['Key']' in locals():
+if 'locationdata[0]["Key"]' in locals():
   locationkey = locationdata[0]['Key']
   locationname = locationdata[0]['LocalizedName']
 
