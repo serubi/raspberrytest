@@ -11,7 +11,7 @@ locationdata = location.json()
 locationkey = locationdata[0]['Key']
 locationname = locationdata[0]['LocalizedName']
 
-weather = requests.get('http://dataservice.accuweather.com/locations/v1/cities/search?apikey=' + apikey + '&q=' + city)
+weather = requests.get('http://dataservice.accuweather.com/currentconditions/v1/' + locationkey + '?apikey=' + apikey + '&q=' + city)
 weatherdata = weather.json()
 temptext = weatherdata[0]['WeatherText']
 temp = weatherdata[0]['Temperature']['Metric']['Value']
