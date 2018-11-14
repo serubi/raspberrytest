@@ -4,7 +4,7 @@ import sys
 
 sense = SenseHat()
 
-apikey = "3g25yMcEXasRcGshlTxbCTupYLcHSg9i"
+apikey = "fF4gUiI4LmULAJJphuBvwsezcG5gG7RP"
 
 if len(sys.argv) > 1:
   city = sys.argv[1]
