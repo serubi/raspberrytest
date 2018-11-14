@@ -16,7 +16,15 @@ print("Finder vejr for " + city)
 location = requests.get('http://dataservice.accuweather.com/locations/v1/cities/search?apikey=' + apikey + '&q=' + city)
 locationdata = location.json()
 
-if 'locationdata[0]["Key"]' in locals():
+try:
+  locationdata[0]['Key']
+except NameError:
+  red = (255, 0, 0)
+  white = (255, 255, 255)
+
+  while True:
+    sense.show_message('Byen "' + city + '" findes ikke', text_colour=white, back_colour=red, scroll_speed=0.05)
+else:
   locationkey = locationdata[0]['Key']
   locationname = locationdata[0]['LocalizedName']
 
@@ -30,9 +38,3 @@ if 'locationdata[0]["Key"]' in locals():
 
   while True:
     sense.show_message("Temperatur i " + locationname + ": " + str(temp) + "C" + " ... " + temptext, text_colour=white, back_colour=black, scroll_speed=0.05)
-else:
-  red = (255, 0, 0)
-  white = (255, 255, 255)
-
-  while True:
-    sense.show_message('Byen "' + city + '" findes ikke', text_colour=white, back_colour=red, scroll_speed=0.05)
