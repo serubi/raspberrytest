@@ -38,5 +38,6 @@ for y in range(4, 8):
 while True:
   time.sleep(1)
   sense.flip_v()
+  sense.flip_h()
   time.sleep(1)
   sense.flip_h()
