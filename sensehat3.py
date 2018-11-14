@@ -7,5 +7,5 @@ orientation = sense.get_orientation_degrees()
 #print("p: {pitch}, r: {roll}, y: {yaw}".format(**orientation))
 
 while True:
-  sense.show_message(orientation['yaw'])
+  sense.show_message(str(math.fsum(orientation['yaw'])))
   time.sleep(0.1)
