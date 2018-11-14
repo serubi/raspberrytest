@@ -25,14 +25,14 @@ if len(locationdata) > 1:
   temptext = weatherdata[0]['WeatherText']
   temp = weatherdata[0]['Temperature']['Metric']['Value']
 
-  blue = (0, 0, 155)
+  black = (0, 0, 0)
   white = (255, 255, 255)
 
   while True:
-    sense.show_message("Temperatur i " + locationname + ": " + str(temp) + "C" + " ... " + temptext, text_colour=white, back_colour=blue, scroll_speed=0.05)
+    sense.show_message("Temperature in " + locationname + ": " + str(temp) + "C" + " ... " + temptext, text_colour=black, back_colour=white, scroll_speed=0.05)
 else:
   red = (155, 0, 0)
   white = (255, 255, 255)
 
   while True:
-    sense.show_message('Byen "' + city + '" findes ikke!', text_colour=white, back_colour=red, scroll_speed=0.05)
+    sense.show_message('The city "' + city + '" doesn\' exist!', text_colour=white, back_colour=red, scroll_speed=0.05)
