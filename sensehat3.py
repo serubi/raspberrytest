@@ -1,5 +1,6 @@
 from sense_hat import SenseHat
 import time
+import math
 
 sense = SenseHat()
 orientation = sense.get_orientation_degrees()
