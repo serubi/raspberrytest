@@ -6,7 +6,7 @@ sense = SenseHat()
 orientation = sense.get_orientation_degrees()
 #print("p: {pitch}, r: {roll}, y: {yaw}".format(**orientation))
 
-sense.show_message(str(math.fsum(orientation['yaw'])))
+sense.show_message(str(math.floor(orientation['yaw'])))
 
 #while True:
   #sense.show_message(str(orientation['yaw']))
