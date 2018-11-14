@@ -4,7 +4,7 @@ import requests
 sense = SenseHat()
 
 apikey = "3g25yMcEXasRcGshlTxbCTupYLcHSg9i"
-city = "Copenhagen"
+city = "København"
 
 location = requests.get('http://dataservice.accuweather.com/locations/v1/cities/search?apikey=' + apikey + '&q=' + city)
 locationdata = location.json()
