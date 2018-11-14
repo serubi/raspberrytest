@@ -9,4 +9,4 @@ sense = SenseHat()
 while True:
   orientation = sense.get_orientation_degrees()
   sense.show_message(str(math.floor(orientation['yaw'])))
-  #time.sleep(0.1)
+  time.sleep(0.5)
