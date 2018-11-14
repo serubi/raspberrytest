@@ -34,6 +34,9 @@ for y in range(4, 8):
       sense.set_pixel(x, y, white)
     else:
       sense.set_pixel(x, y, red)
-      
-time.sleep(5)
-sense.flip_h()
+
+while true:
+  time.sleep(1)
+  sense.flip_v()
+  time.sleep(1)
+  sense.flip_h()
