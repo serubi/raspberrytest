@@ -8,13 +8,13 @@ def auto_rotate_display():
   x = round(sense.get_accelerometer_raw()['x'], 0)
   y = round(sense.get_accelerometer_raw()['y'], 0)
 
-  rot = 0
+  rot = 270
   if x == -1:
-    rot=90
+    rot=0
   elif y == -1:
-    rot=180
+    rot=90
   elif x == 1:
-    rot=270
+    rot=180
 
   # rotate the display according to the orientation
   print ("Current orientation x=%s y=%s  rotating display by %s degrees" % (x, y, rot))
