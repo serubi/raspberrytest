@@ -8,6 +8,6 @@ sense = SenseHat()
 
 while True:
   orientation = sense.get_orientation_degrees()
-  print("p: {math.floor(orientation['pitch'])}, r: {math.floor(orientation['roll'])}, y: {math.floor(orientation['yaw'])}")
+  print("p: " + math.floor(orientation['pitch']) + ", r: " + math.floor(orientation['roll']) + ", y: " + math.floor(orientation['yaw']))
   #sense.show_message(str(math.floor(orientation['yaw'])))
   #time.sleep(0.5)
