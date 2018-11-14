@@ -10,6 +10,9 @@ if len(sys.argv) > 1:
   city = sys.argv[1]
 else:
   city = "Roskilde"
+  
+if len(sys.argv) > 2:
+  city += " " + sys.argv[2]
 
 print("Finder vejr for " + city)
 
