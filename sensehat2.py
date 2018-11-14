@@ -6,7 +6,7 @@ sense = SenseHat()
 
 apikey = "3g25yMcEXasRcGshlTxbCTupYLcHSg9i"
 
-if 'sys.argv[1]' in locals():
+if len(sys.argv) > 1:
   city = sys.argv[1]
 else:
   city = "Roskilde"
