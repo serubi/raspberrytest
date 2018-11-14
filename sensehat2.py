@@ -1,10 +1,13 @@
 from sense_hat import SenseHat
 import requests
+import sys
 
 sense = SenseHat()
 
 apikey = "3g25yMcEXasRcGshlTxbCTupYLcHSg9i"
-city = "København"
+city = "Copenhagen"
+
+print(sys.argv[2])
 
 location = requests.get('http://dataservice.accuweather.com/locations/v1/cities/search?apikey=' + apikey + '&q=' + city)
 locationdata = location.json()
