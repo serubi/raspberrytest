@@ -3,15 +3,22 @@ import requests
 
 sense = SenseHat()
 
+apikey = "3g25yMcEXasRcGshlTxbCTupYLcHSg9i"
+city = "Roskilde"
 
-response = requests.get('https://reqres.in/api/users/2')
-data = response.json()
+location = requests.get('http://dataservice.accuweather.com/locations/v1/cities/search?apikey=' + apikey + '&q=' + city)
+locationdata = location.json()
+locationkey = locationdata[0]['Key']
+locationname = locationdata[0]['LocalizedName']
 
-#print(data["data"]["first_name"])
+weather = requests.get('http://dataservice.accuweather.com/locations/v1/cities/search?apikey=' + apikey + '&q=' + city)
+weatherdata = weather.json()
+temptext = weatherdata[0]['WeatherText']
+temp = weatherdata[0]['Temperature']['Metric']['Value']
 
 black = (0, 0, 0)
-blue = (0, 0, 255)
+white = (155, 155, 155)
 
 while True:
-  sense.show_message(data["data"]["first_name"] + " " + data["data"]["last_name"], text_colour=blue, back_colour=black, scroll_speed=0.05)
+  sense.show_message("Temperatur i " + locationname + ": " + temp + "C" + " ... " + temptext, text_colour=white, back_colour=black, scroll_speed=0.05)
 
