@@ -6,12 +6,10 @@ sense = SenseHat()
 
 apikey = "3g25yMcEXasRcGshlTxbCTupYLcHSg9i"
 
-try:
-  sys.argv[1]
-except NameError:
-  city = "Roskilde"
-else:
+if 'sys.argv[1]' in locals():
   city = sys.argv[1]
+else:
+  city = "Roskilde"
 
 print("Finder vejr for " + city)
 
